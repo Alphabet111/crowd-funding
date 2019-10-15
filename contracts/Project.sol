@@ -116,4 +116,20 @@ contract Project {
         address(uint160(payment.receiver)).transfer(payment.amount);
         payment.completed = true;
     }
+    
+    
+    function getSummary() public view returns (string memory, uint, uint, uint, uint, uint, uint, address) {
+        return (
+            description,
+            minInvest,
+            maxInvest,
+            goal,
+            address(this).balance,
+            investorCount,
+            payments.length,
+            owner
+        );
+    }
+    
+    
 }

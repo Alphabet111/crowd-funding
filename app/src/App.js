@@ -14,16 +14,26 @@ import Button from '@material-ui/core/Button';
 import { Grid, Typography, Card, CardContent, CardActions } from '@material-ui/core';
 import Layout from './component/Layout';
 import './style/common.css'
+import Home from './component/Home'
 
 
 
-const contractAddress = '0x550B37d60Eb314256B7b3547F278E80A610681A0';
+const contractAddress = '0x95e828cE3014B5a2ef1DbA456e58AD912080eB5f';
 
 
 class App extends React.Component {
   // state = { storageValue: 0, web3: null, accounts: [], contract: null };
-  state = { limit: 0, name: '',min: 0,max:0,number:0,currentAmount:0,web3: null, accounts: [], contract: null };
-
+  // state = { limit: 0, name: '',min: 0,max:0,number:0,currentAmount:0,web3: null, accounts: [], contract: null };
+  state = {
+    description: '',
+    minInvest: 0,
+    maxInvest: 0,
+    goal: 0,
+    balance: 0,
+    investorCount: 0,
+    contract: null,
+    owner: null
+}
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
@@ -45,7 +55,7 @@ class App extends React.Component {
        // Get the contract instance.
        const networkId = await web3.eth.net.getId();
        const deployedNetwork = ProjectContract.networks[networkId];
-       const instance = new web3.eth.Contract(
+       const contract = new web3.eth.Contract(
          ProjectContract.abi,
          contractAddress
          // deployedNetwork && deployedNetwork.address,
@@ -53,7 +63,21 @@ class App extends React.Component {
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      // this.setState({ web3, accounts, contract: instance }, this.runExample);
+      const summary = await contract.methods.getSummary().call()
+      console.log(':合约的目标')
+      console.log(summary);
+      
+  this.setState({
+      description: summary[0],
+      minInvest: summary[1],
+      maxInvest: summary[2],
+      goal: summary[3],
+      balance: summary[4],
+      investorCount: summary[5],
+      contract,
+      owner: summary[7]
+  })
      
     } catch (error) {
       console.log(error);
@@ -75,10 +99,10 @@ class App extends React.Component {
     // await contract.methods.set(5).send({ from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
+    // const response = await contract.methods.get().call();
 
     // Update state with the result.
-    this.setState({ storageValue: response });
+    // this.setState({ storageValue: response });
   };
 
   render() {
@@ -89,49 +113,39 @@ class App extends React.Component {
         <Layout>
           <Button variant='outlined' color='primary'>Welcome to Ethereum ICO DApp!</Button>
           <div style={wrapper}>
-            <div>项目名称:{this.state.name}</div>
-            <div className='clearfix'>
-              <div style={descItem}>
-                <div>{this.state.limit}</div>
-                <div>募资上限</div>
-              </div>
-              <div style={descItem}>
-                <div>{this.state.min}</div>
-                <div>最小投资金额</div>
-              </div>
-              <div style={descItem}>
-                <div>{this.state.max}</div>
-                <div>最大投资金额</div>
-              </div>
-              <div style={descItem}>
-                <div>{this.state.number}</div>
-                <div>参投人数</div>
-              </div>
-              <div style={descItem}>
-                <div>{this.state.currentAmount}</div>
-                <div>已募资金额</div>
-              </div>
+                <div>项目名称:{this.state.description}</div>
+                <div className='clearfix'>
+                    <div style={descItem}>
+                        <div>{this.state.goal}</div>
+                        <div>募资上限</div>
+                    </div>
+                    <div style={descItem}>
+                        <div>{this.state.minInvest}</div>
+                        <div>最小投资金额</div>
+                    </div>
+                    <div style={descItem}>
+                        <div>{this.state.maxInvest}</div>
+                        <div>最大投资金额</div>
+                    </div>
+                    <div style={descItem}>
+                        <div>{this.state.investorCount}</div>
+                        <div>参投人数</div>
+                    </div>
+                    <div style={descItem}>
+                        <div>{this.state.balance}</div>
+                        <div>已募资金额</div>
+                    </div>
+                </div>
+                <div className='clearfix' style={btnContainer}>
+                    <Button variant="contained" color="primary" style={invest}>立即投资</Button>
+                    <Button variant="contained" color="primary" style={checkDetail}>查看详情</Button>
+                </div>
             </div>
-            <div className='clearfix' style={btnContainer}>
-              <Button variant="contained" color="primary" style={invest}>立即投资</Button>
-              <Button variant="contained" color="primary" style={checkDetail}>查看详情</Button>
-            </div>
-          </div>
+
+
         
-
-
-
-
-
-
-
-
-
-
-
-
         <div>
-          <div>The stored value is: {this.state.storageValue}</div>
+          {/* <div>The stored value is: {this.state.storageValue}</div>
           <input type="number" ref='inputValue' style={{ width: 200, height: 50, marginTop: 100 }} />
           <button style={{ marginLeft: 50, width: 100, height: 50, padding: 20 }}
             onClick={() => {
@@ -145,7 +159,7 @@ class App extends React.Component {
                   this.setState({ storageValue: result })
                 })
               });
-            }}>设置</button>
+            }}>设置</button> */}
           <ul>
             <li>
               <Link to="/">Home</Link>
@@ -160,11 +174,12 @@ class App extends React.Component {
 
           <Switch>
             <Route path="/about">
-              <About />
+              <About/>
             </Route>
             <Route path="/users">
               <Users />
             </Route>
+            {/* <Route path="/:contract/:account/:storageValue"> */}
             <Route path="/">
               <Home />
             </Route>
@@ -177,11 +192,11 @@ class App extends React.Component {
   }
 }
 
-class Home extends React.Component {
-  render() {
-    return <h2>Home</h2>;
-  }
-}
+// class Home extends React.Component {
+//   render() {
+//     return <h2>Home</h2>;
+//   }
+// }
 
 function About() {
   return <h2>About</h2>;
