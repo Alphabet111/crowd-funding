@@ -22,7 +22,7 @@ class Layout extends React.Component {
         const { classes } = this.props;
         return (
             <div className={classes.contraner}>
-                <Header/>
+                <Header  history={this.props.history}/>
                 <div className={classes.wrapper}>{this.props.children}</div>
             </div>
         )

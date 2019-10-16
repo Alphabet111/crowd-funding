@@ -2,91 +2,72 @@ import React from 'react';
 import Button from '@material-ui/core/Button'
 // import Project from '../utils/Project'
 import web3 from '../utils/web3'
+import ProjectListContract from '../contracts/ProjectList.json'
 import ProjectContract from '../contracts/Project.json'
+import Project from './Project';
 
-const contractAddress = '0x95e828cE3014B5a2ef1DbA456e58AD912080eB5f'
+const contractAddress = '0xcbDA099803FDE635584f761F8ec8f6c8C48694b6'
 
 
 export default class Home extends React.Component {
     state = {
-        description: '',
-        minInvest: 0,
-        maxInvest: 0,
-        goal: 0,
-        balance: 0,
-        investorCount: 0,
-        contract: null,
-        owner: null
+        contract : null,
+        contracts: [],
     }
 
     componentDidMount = async () => {
         this.refresh()
-       
-        
+
     }
 
     refresh = async () => {
-       const contract = new web3.eth.Contract(
-            ProjectContract.abi,
+        const contract = new web3.eth.Contract(
+            ProjectListContract.abi,
             contractAddress
         );
+        const contracts = await contract.methods.getProjects().call()
+        
+        // var projects = []
+        // contracts.map((address, i) => {
+        //     const projContract = new web3.eth.Contract(
+        //         ProjectContract.abi,
+        //         address
+        //     );
+        //     var projObj = {}
+        //     projContract.methods.getSummary().call().then(summary => {
+        //         projObj["description"] = summary[0],
+        //             projObj["minInvest"] = summary[1],
+        //             projObj["maxInvest"] = summary[2],
+        //             projObj["goal"] = summary[3],
+        //             projObj["balance"] = summary[4],
+        //             projObj["investorCount"] = summary[5],
+        //             projObj["paymentsLength"] = summary[6],
+        //             projObj["owner"] = summary[7]
+        //         console.log("proobj哈哈哈哈" + projObj.description);
+        //         projects.push(projObj)
+        //         this.setState({projects})
+        //     })
+        // })
 
-        if(contract == null) {
-            console.log('contract 为 null');
-            
-        }else{
-            console.log('合约未:'+contract)
-        }
-
-        const summary = await contract.methods.getSummary().call()
-            console.log(':合约的目标')
-            console.log(summary);
-            
         this.setState({
-            description: summary[0],
-            minInvest: summary[1],
-            maxInvest: summary[2],
-            goal: summary[3],
-            balance: summary[4],
-            investorCount: summary[5],
             contract,
-            owner: summary[7]
+            contracts
         })
+
+        // console.log("projects奥科吉发动机了解对方为:"+projects[0].description);
+
     }
 
 
     render() {
-            
+        // let contracts = this.state.contracts
+        // console.log(contracts+"呵呵呵呵呵");
         return (
 
-            <div style={wrapper}>
-                <div>项目名称:{this.state.description}</div>
-                <div className='clearfix'>
-                    <div style={descItem}>
-                        <div>{this.state.goal}</div>
-                        <div>募资上限</div>
-                    </div>
-                    <div style={descItem}>
-                        <div>{this.state.minInvest}</div>
-                        <div>最小投资金额</div>
-                    </div>
-                    <div style={descItem}>
-                        <div>{this.state.maxInvest}</div>
-                        <div>最大投资金额</div>
-                    </div>
-                    <div style={descItem}>
-                        <div>{this.state.investorCount}</div>
-                        <div>参投人数</div>
-                    </div>
-                    <div style={descItem}>
-                        <div>{this.state.balance}</div>
-                        <div>已募资金额</div>
-                    </div>
-                </div>
-                <div className='clearfix' style={btnContainer}>
-                    <Button variant="contained" color="primary" style={invest}>立即投资</Button>
-                    <Button variant="contained" color="primary" style={checkDetail}>查看详情</Button>
-                </div>
+            <div >
+                {this.state.contracts.map((contract,i) => {
+                   return <Project key={i} index={i} contract ={this.state.contract} ></Project>
+                })}
             </div>
 
 
@@ -97,23 +78,6 @@ export default class Home extends React.Component {
 
 
 
-            // <div style={wrapper}>
-            //     <div>The stored value is: {this.state.storageValue}</div>
-            //     <input type="number" ref='inputValue' style={{ width: 200, height: 50, marginTop: 100 }} />
-            //     <button style={{ marginLeft: 50, width: 100, height: 50, padding: 20 }}
-            //         onClick={() => {
-            //             const value = Number(this.refs.inputValue.value);
-            //             console.log(value);
-            //             // const { accounts, contract } = this.state;
-            //             state.contract.methods.set(value).send({ from: state.account }).then(() => {
-            //                 console.log('成功');
-            //                 state.contract.methods.get().call().then((result) => {
-            //                     console.log(result);
-            //                     this.setState({ storageValue: result })
-            //                 })
-            //             });
-            //         }}>设置</button>
-            // </div>
         )
     }
 }
